@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?
+  name          String?
+  phone         String?
+  emailVerified DateTime?
+  role          String    @default("USER")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastActive    DateTime  @default(now())
+  city          String?
+  ads           Ad[]
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
+}
+
+model Category {
+  id   String  @id @default(cuid())
+  name String  @unique
+  icon String?
+  ads  Ad[]
+}
+
+model Location {
+  id       String @id @default(cuid())
+  district String
+  city     String
+  ads      Ad[]
+
+  @@unique([district, city])
+}
+
+model Ad {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  images      String
+  attributes  String?
+  status      String   @default("PENDING")
+  featured    Boolean  @default(false)
+  phone1      String?
+  phone2      String?
+  phone3      String?
+  showPhone1  Boolean  @default(true)
+  showPhone2  Boolean  @default(false)
+  showPhone3  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  categoryId  String
+  locationId  String
+  location    Location @relation(fields: [locationId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+}
